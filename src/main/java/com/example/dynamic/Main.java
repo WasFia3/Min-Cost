@@ -121,6 +121,7 @@ public class Main extends Application {
         // Start button action
 
         startBtn.setOnAction(e -> {
+           //
             playSound("/clickSound.wav");
 
             if (file == null || !file.exists()) {
