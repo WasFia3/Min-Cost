@@ -4,70 +4,65 @@ import java.util.Random;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.scene.text.Text;
-
-import static java.awt.SystemColor.text;
 
 /**
- * The SolutionScr class extends BorderPane and is used to display a solution screen
+ * The SolutionScreen class extends BorderPane and is used to display a solution screen
  * for a dynamic programming problem in a graphical user interface. It visualizes the
  * dynamic programming table along with paths and costs.
  */
-public class SolutionScr extends BorderPane {
+public class SolutionScreen {
 
     City[] cities; // Array of City objects
-    final String source; // Source city name
-    final String des; // Destination city name
+     String source; // Source city name
+     String dest; // Destination city name
     CellInfo[][] dpTable; // 2D array representing the dynamic programming table
-    private final int prefWidth = 50; // Preferred width for cells and labels in the grid
-    private final int prefHeight = 10; // Preferred height for cells and labels in the grid
 
     private int start, end; // Indices for source and destination cities within the array
-    private int numberOfStages; // Number of stages in the journey
 
     private Stage stage; // Stage for the application
     private Scene scene; // Scene for navigation
 
+
+
+
+    private final int prefWidth = 50; // Preferred width for cells and labels in the grid
+    private final int prefHeight = 10; // Preferred height for cells and labels in the grid
+
+    private int numberOfStages; // Number of stages in the journey
+
+
+
     /**
-     * Constructor for the SolutionScr class.
+     * Constructor for the SolutionScreen class.
      * Initializes the UI components and dynamic programming structures based on the provided cities and path.
      * @param stage The primary stage of the application
-     * @param scene The previous scene for navigation purposes
      * @param cities Array of cities involved in the problem
      * @param source Name of the source city
-     * @param des Name of the destination city
+     * @param dest Name of the destination city
      */
-    public SolutionScr(Stage stage, Scene scene, City[] cities, String source, String des) {
+    public Scene createScene(Stage stage, City[] cities, String source, String dest) {
 
         this.stage = stage;
-        this.scene = scene;
-
         this.cities = cities;
         this.source = source;
-        this.des = des;
+        this.dest = dest;
 
-        initializeSourceAndDes();
+        initializeSourceAndDest();
 
         generateDPTable();
 
-        addFX();
-    }
+        BorderPane border = new BorderPane();
 
-    /**
-     * Initializes UI components and binds them together on the layout.
-     */
-    private void addFX() {
         /* GridPane gridPane = new GridPane();
         gridPane.setHgap(10); // Horizontal gap between grid cells
        gridPane.setVgap(10); // Vertical gap between grid cells
@@ -159,7 +154,7 @@ public class SolutionScr extends BorderPane {
 
 
         // Text for min cost
-        Text minLabel = new Text("The minimum cost bwetween"+ this.source + " and " + this.des);
+        Text minLabel = new Text("The minimum cost bwetween"+ this.source + " and " + this.dest);
         minLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 10));
         minLabel.setFill(Color.web("#68af3d"));
         minLabel.setStroke(Color.BLACK);
@@ -172,7 +167,7 @@ public class SolutionScr extends BorderPane {
 
         optimalCostSolution.setAlignment(Pos.CENTER);
 
-        Label optimalPathLabel = new Label("Optimal Path Between " + this.source + " and " + this.des);
+        Label optimalPathLabel = new Label("Optimal Path Between " + this.source + " and " + this.dest);
         optimalPathLabel.setStyle("-fx-text-fill: #00ffbb; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
         optimalPathLabel.setAlignment(Pos.CENTER);
 
@@ -217,7 +212,7 @@ public class SolutionScr extends BorderPane {
         optimalCostSolution.setMinWidth(maxWidth);
         optimalPathSolution.setMinWidth(maxWidth);
 
-        setRight(rightBox);
+        border.setRight(rightBox);
         BorderPane.setMargin(rightBox, new Insets(0, 150, 0, 0));
 
 
@@ -232,7 +227,11 @@ public class SolutionScr extends BorderPane {
 
         });
 
+        return new Scene(border, 800, 600);
+
+
     }
+
 
     public Text createStyledText(String textContent) {
         Text text = new Text(textContent);
@@ -246,7 +245,7 @@ public class SolutionScr extends BorderPane {
     /**
      * Initializes the source and destination indices based on the cities array.
      */
-    private void initializeSourceAndDes() {
+    private void initializeSourceAndDest() {
         for (int i = 0; i < cities.length; i++) {
             if (cities[i].getName().equals(source)) {
                 start = i;
@@ -254,7 +253,7 @@ public class SolutionScr extends BorderPane {
         }
 
         for (int i = 0; i < cities.length; i++) {
-            if (cities[i].getName().equals(des)) {
+            if (cities[i].getName().equals(dest)) {
                 end = i;
             }
         }

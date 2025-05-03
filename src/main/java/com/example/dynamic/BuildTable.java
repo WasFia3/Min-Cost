@@ -7,6 +7,11 @@ import javafx.stage.Stage;
 
 public class BuildTable {
 
+    private final int prefWidth = 50; // Preferred width for cells and labels in the grid
+    private final int prefHeight = 10; // Preferred height for cells and labels in the grid
+    private int numberOfStages; // Number of stages in the journey
+
+
     private void showDetailsStage(String message, CellInfo[] cellInfos) {
         // Create a new stage
         Stage detailStage = new Stage();

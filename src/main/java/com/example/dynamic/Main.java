@@ -32,11 +32,15 @@ public class Main extends Application {
     File file;
     City[] citiesList;
     String source;
-    String des;
+    String dest;
+    Stage stage;
 
     public void start(Stage stage) throws Exception {
 
-        BorderPane bp = new BorderPane();
+        this.stage = stage;
+        this.stage.setUserData(this); // Make Main accessible globally
+
+        BorderPane border = new BorderPane();
 
         Image backgroundImage = new Image("bk.gif");
         BackgroundImage bgImage = new BackgroundImage(
@@ -46,9 +50,9 @@ public class Main extends Application {
                 BackgroundPosition.DEFAULT,
                 new BackgroundSize(100, 100, true, true, false, true)
         );
-        bp.setBackground(new Background(bgImage));
+        border.setBackground(new Background(bgImage));
 
-        bp.setCenter(createStyledText("Minumam Cost Calculater"));
+        border.setCenter(createStyledText("Minumam Cost Calculater"));
 
         Button fileBtn = createStyledButton("Upload Cities File");
         Button startBtn = createStyledButton("Start");
@@ -81,9 +85,9 @@ public class Main extends Application {
         buttonsBox.setPadding(new Insets(20));
         BorderPane.setAlignment(buttonsBox, Pos.CENTER);
 
-        bp.setBottom(buttonsBox);
+        border.setBottom(buttonsBox);
 
-        Scene scene = new Scene(bp, 1000, 600);
+        Scene scene = new Scene(border, 1000, 600);
 
 
 
@@ -131,9 +135,8 @@ public class Main extends Application {
 
             try {
                 readCities();
-                SolutionScr solutionScr = new SolutionScr(stage, scene, citiesList, source, des);
-                Scene solutionScene = new Scene(solutionScr);
-                stage.setScene(solutionScene);
+                SolutionScreen solutionScreen = new SolutionScreen();
+                stage.setScene(solutionScreen.createScene(stage,citiesList,source,dest));
                 stage.setMaximized(true);
             } catch (Exception ex) {
                 createAlert(Alert.AlertType.ERROR,"Error","Invalid or corrupted file format.","Please upload a properly formatted file.");
@@ -156,6 +159,12 @@ public class Main extends Application {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    // Method to switch scenes
+    public void switchToScene(Scene newScene) {
+
+        stage.setScene(newScene);
     }
 
 
@@ -222,7 +231,7 @@ public class Main extends Application {
             int numberOfCities = Integer.parseInt(sc.nextLine().trim());
             String[] tkz = sc.nextLine().split(",");
             source = tkz[0].trim();
-            des = tkz[1].trim();
+            dest = tkz[1].trim();
             citiesList = new City[numberOfCities];
 
             int number = 0;
