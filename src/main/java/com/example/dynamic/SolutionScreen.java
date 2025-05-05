@@ -37,7 +37,6 @@ public class SolutionScreen {
     private int start, end; // Indices for source and destination cities within the array
 
     private Stage stage; // Stage for the application
-    private Scene scene; // Scene for navigation
 
 
 
@@ -48,15 +47,6 @@ public class SolutionScreen {
     private int numberOfStages; // Number of stages in the journey
 
 
-
-    /**
-     * Constructor for the SolutionScreen class.
-     * Initializes the UI components and dynamic programming structures based on the provided cities and path.
-     * @param stage The primary stage of the application
-     * @param cities Array of cities involved in the problem
-     * @param source Name of the source city
-     * @param dest Name of the destination city
-     */
     public Scene createScene(Stage stage, City[] cities, String source, String dest) {
 
         Main mainApp = (Main) stage.getUserData();   //This allows you to access
@@ -73,107 +63,18 @@ public class SolutionScreen {
 
         BorderPane border = new BorderPane();
 
-        /* GridPane gridPane = new GridPane();
-        gridPane.setHgap(10); // Horizontal gap between grid cells
-       gridPane.setVgap(10); // Vertical gap between grid cells
-
-        this.numberOfStages = cities[cities.length - 1].getStage();
-
-        String[] colors = arrayOfColors(this.numberOfStages);
-
-        // Adding column headers
-        for (int i = start; i < end + 1; i++) {
-            Label header = new Label(cities[i].getName());
-            header.setStyle(
-                    "-fx-background-color: #222831; -fx-text-fill: #FFD369; -fx-font-size: 14px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: "
-                            + colors[cities[i].getStage()] + "; -fx-border-width: 2px; -fx-border-radius: 10px;");
-            header.setAlignment(Pos.CENTER);
-            header.setPrefWidth(prefWidth);
-            header.setPrefHeight(prefHeight);
-          gridPane.add(header, i + 1, 0); // +1 because first column is for row headers
-        }
-
-        // Adding row headers
-        for (int i = start; i < end + 1; i++) {
-            Label rowHeader = new Label(cities[i].getName());
-            rowHeader.setStyle(
-                    "-fx-background-color: #222831; -fx-text-fill: #FFD369; -fx-font-size: 14px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: "
-                            + colors[cities[i].getStage()] + "; -fx-border-width: 2px; -fx-border-radius: 10px;");
-            rowHeader.setAlignment(Pos.CENTER);
-            rowHeader.setPrefWidth(prefWidth);
-            rowHeader.setPrefHeight(prefHeight);
-           gridPane.add(rowHeader, 0, i + 1);
-        }
-
-        // Adding data cells
-        for (int i = start; i < end + 1; i++) {
-            for (int j = start; j < end + 1; j++) {
-                if (dpTable[i][j] != null) {
-                    Label cell = new Label(String.valueOf(dpTable[i][j].getOptimalCost()));
-                    cell.setCursor(Cursor.HAND);
-
-                    String optimalPath = dpTable[i][j].getOptimalPath().toString();
-                    String city_i = cities[i].getName(), city_j = cities[j].getName();
-                    CellInfo[] cellInfos = dpTable[i][j].getCellInfos();
-                    cell.setOnMouseClicked(event -> {
-                        showDetailsStage(
-                                "The Optimal Path Between City " + city_i + " and " + city_j + " is: " + optimalPath,
-                                cellInfos);
-                    });
-
-                    if (i == 0 && j == dpTable[i].length - 1)
-                        cell.setStyle(
-                                "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 14px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-                    else
-                        cell.setStyle(
-                                "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 14px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #1679AB; -fx-border-width: 2px; -fx-border-radius: 10px;");
-
-                    cell.setAlignment(Pos.CENTER);
-
-                    cell.setPrefWidth(prefWidth);
-                    cell.setPrefHeight(prefHeight);
-                  //  gridPane.add(cell, j + 1, i + 1);
-
-                }
-            }
-        }
-*/
-        Label dynamicLabel = new Label("Dynamic Programming Table");
-        dynamicLabel.setStyle("-fx-text-fill: #FFF5E0; " + "-fx-padding: 2; " + "-fx-font-size: 22px;");
-
-      /*  VBox leftBox = new VBox(10, dynamicLabel, gridPane);
-        leftBox.setAlignment(Pos.CENTER);
-
-        // Wrapping the VBox with a ScrollPane
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(leftBox);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-        scrollPane.setStyle("-fx-background: black; " + "-fx-border-color: gold; " + "-fx-border-width: 2px; "
-                + "-fx-border-radius: 10px;");
-
-        scrollPane.setPadding(new Insets(10));
-        setLeft(scrollPane);
-
-        setPadding(new Insets(15));
-        gridPane.setAlignment(Pos.CENTER);
-        setAlignment(gridPane, Pos.CENTER);
-*/
-
-
 
         // Text for min cost
         Text minTxt1 = new Text("    Result of calculating\n the minimum cost between");
         minTxt1.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
         minTxt1.setFill(Color.web("#68af3d"));
-        minTxt1.setStroke(Color.BLACK);
+        minTxt1.setStroke(Color.FORESTGREEN);
         minTxt1.setStrokeWidth(2);
 
         Text minTxt2 = new Text("your start and destination");
         minTxt2.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
         minTxt2.setFill(Color.web("#68af3d"));
-        minTxt2.setStroke(Color.BLACK);
+        minTxt2.setStroke(Color.FORESTGREEN);
         minTxt2.setStrokeWidth(2);
 
 
@@ -261,7 +162,7 @@ public class SolutionScreen {
         // Buttons Actions
 
         altBtn.setOnAction(e -> {
-            showDetailsStage(solutionInfo);
+            showAlternativeStage(solutionInfo);
         });
 
 
@@ -273,7 +174,10 @@ public class SolutionScreen {
         });
 
         tableBtn.setOnAction(e ->{
-
+            playSound("/clickSound.wav");
+            BuildTable buildTable = new BuildTable();
+            Scene scene = buildTable.createScene(stage,cities,source,dest,dpTable,start,end); // Create the scene
+            mainApp.switchToScene(scene);  // Switch to the new scene using Main's method
         });
 
 
@@ -471,7 +375,6 @@ public class SolutionScreen {
         messageLabel.setWrapText(true);
         VBox layout = new VBox(10);
         layout.setAlignment(Pos.CENTER);
-        layout.getStylesheets().add("theme.css");
         layout.getChildren().add(messageLabel);
 
         if (cellInfos != null) {
@@ -503,48 +406,88 @@ public class SolutionScreen {
         detailStage.show();
     }
 
-    /**
-     * Similar to the above method but handles showing alternatives without a specific message.
-     * @param cellInfos Array of CellInfo objects containing alternative solutions
-     */
-    private void showDetailsStage(CellInfo[] cellInfos) {
+    private void showAlternativeStage(CellInfo[] cellInfos) {
         Stage detailStage = new Stage();
 
-        VBox contentBox = new VBox(10);
-        contentBox.setAlignment(Pos.CENTER);
+        VBox contentBox = new VBox(15);
+        contentBox.setAlignment(Pos.CENTER_LEFT);
         contentBox.setPadding(new Insets(20));
+        contentBox.setStyle("-fx-background-color: rgba(250,231,169,0.6); -fx-background-radius: 10px;");
+        contentBox.setMaxWidth(Region.USE_PREF_SIZE);
+        contentBox.setMaxHeight(Region.USE_PREF_SIZE);
 
-        BorderPane root = new BorderPane(contentBox);
+        BorderPane root = new BorderPane();
+        root.setPadding(new Insets(30));
 
+        // Background image setup
         Image backgroundImage = new Image("altBk.gif");
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.DEFAULT,
+                BackgroundPosition.CENTER,
                 new BackgroundSize(100, 100, true, true, false, true)
         );
         root.setBackground(new Background(bgImage));
 
-        if (cellInfos != null) {
-            Label alternativeLabel = new Label("Alternative Solutions");
-            alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; -fx-padding: 2; -fx-font-size: 16px;");
-            contentBox.getChildren().add(alternativeLabel);
+        if (cellInfos != null && dpTable[start][end] != null) {
+            // Title
+            Label alternativeLabel = new Label("Optimal Path Between start city and end city:\n" + dpTable[start][end].getOptimalPath());
+            alternativeLabel.setFont(Font.font("Comic Sans MS", 20));
+            alternativeLabel.setStyle("-fx-text-fill: #2c3e50; -fx-padding: 10;");
+            alternativeLabel.setWrapText(true);
 
+            // Icon
+            ImageView optimalPathIcon = new ImageView(new Image(getClass().getResourceAsStream("/optPathIcon.png")));
+            optimalPathIcon.setFitWidth(32);
+            optimalPathIcon.setFitHeight(32);
+
+            HBox titleBox = new HBox(10, optimalPathIcon, alternativeLabel);
+            titleBox.setAlignment(Pos.CENTER_LEFT);
+
+            contentBox.getChildren().add(titleBox);
+
+            // Alternatives
             for (CellInfo cellInfo : cellInfos) {
                 if (cellInfo != null) {
-                    Label alternative = new Label("Alternative Solution : " + cellInfo.getOptimalPath()
-                            + " With Cost " + cellInfo.getOptimalCost());
-                    alternative.setStyle(
-                            "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; " +
-                                    "-fx-padding: 0.5em; -fx-background-radius: 10px; " +
-                                    "-fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-                    contentBox.getChildren().add(alternative);
+                    VBox altBox = new VBox(5);
+                    altBox.setPadding(new Insets(12));
+                    altBox.setSpacing(4);
+                    altBox.setStyle(
+                            "-fx-background-color: linear-gradient(to right, #e0ffe0, #caffd0);" +
+                                    "-fx-background-radius: 12px;" +
+                                    "-fx-border-color: #2ecc71;" +
+                                    "-fx-border-radius: 12px;" +
+                                    "-fx-border-width: 2px;"
+                    );
+
+                    Label pathLabel = new Label("Alternative Path: " + cellInfo.getOptimalPath());
+                    pathLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+                    pathLabel.setTextFill(Color.web("#34495e"));
+                    pathLabel.setWrapText(true);
+
+                    // Cost label + icon in a horizontal box
+                    ImageView moneyIcon = new ImageView(new Image(getClass().getResourceAsStream("/moneyIcon.png")));
+                    moneyIcon.setFitWidth(18);
+                    moneyIcon.setFitHeight(18);
+
+                    Label costLabel = new Label("Cost: " + cellInfo.getOptimalCost());
+                    costLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 15));
+                    costLabel.setTextFill(Color.web("#2c3e50"));
+
+                    HBox costBox = new HBox(6, moneyIcon, costLabel);
+                    costBox.setAlignment(Pos.CENTER_LEFT);
+
+                    altBox.getChildren().addAll(pathLabel, costBox);
+                    contentBox.getChildren().add(altBox);
                 }
             }
+
+
+            root.setCenter(contentBox);
         }
 
-        Scene scene = new Scene(root, 1000, 500);
+        Scene scene = new Scene(root, 1000, 600);
         detailStage.setTitle("Alternative Solutions");
         detailStage.setScene(scene);
         detailStage.show();
@@ -552,30 +495,5 @@ public class SolutionScreen {
 
 
 
-    /**
-     * Generates an array of random color codes.
-     * @param size The number of color codes to generate
-     * @return An array of hex color codes
-     */
-    private String[] arrayOfColors(int size) {
-        Random rand = new Random();
-        String[] colorCodes = new String[size + 1]; // Array to hold color codes
-
-        for (int i = 0; i < colorCodes.length; i++) {
-            // Generate random colors
-            float r = rand.nextFloat();
-            float g = rand.nextFloat();
-            float b = rand.nextFloat();
-
-            // Create a color object
-            Color color = new Color(r, g, b, 1.0);
-
-            // Convert color to hexadecimal (stripping alpha value)
-            colorCodes[i] = String.format("#%02X%02X%02X", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
-                    (int) (color.getBlue() * 255));
-        }
-
-        return colorCodes;
-    }
 
 }

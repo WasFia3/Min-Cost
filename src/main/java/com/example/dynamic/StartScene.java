@@ -161,7 +161,7 @@ public class StartScene {
         Text text = new Text(textContent);
         text.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
         text.setFill(Color.web("#68af3d"));
-        text.setStroke(Color.BLACK);
+        text.setStroke(Color.FORESTGREEN);
         text.setStrokeWidth(2);
         return text;
     }
