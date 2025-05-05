@@ -1,19 +1,25 @@
 package com.example.dynamic;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Random;
 
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import javax.sound.sampled.*;
 
 /**
  * The SolutionScreen class extends BorderPane and is used to display a solution screen
@@ -51,6 +57,9 @@ public class SolutionScreen {
      * @param dest Name of the destination city
      */
     public Scene createScene(Stage stage, City[] cities, String source, String dest) {
+
+        Main mainApp = (Main) stage.getUserData();   //This allows you to access
+
 
         this.stage = stage;
         this.cities = cities;
@@ -154,16 +163,27 @@ public class SolutionScreen {
 
 
         // Text for min cost
-        Text minLabel = new Text("The minimum cost bwetween"+ this.source + " and " + this.dest);
-        minLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 10));
-        minLabel.setFill(Color.web("#68af3d"));
-        minLabel.setStroke(Color.BLACK);
-        minLabel.setStrokeWidth(2);
+        Text minTxt1 = new Text("    Result of calculating\n the minimum cost between");
+        minTxt1.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
+        minTxt1.setFill(Color.web("#68af3d"));
+        minTxt1.setStroke(Color.BLACK);
+        minTxt1.setStrokeWidth(2);
+
+        Text minTxt2 = new Text("your start and destination");
+        minTxt2.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
+        minTxt2.setFill(Color.web("#68af3d"));
+        minTxt2.setStroke(Color.BLACK);
+        minTxt2.setStrokeWidth(2);
 
 
         Label optimalCostSolution = new Label(String.valueOf(dpTable[start][end].getOptimalCost()));
-        optimalCostSolution.setStyle(
-                "-fx-background-color: #FFF5E0; -fx-text-fill: #4bffff; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #ff0000; -fx-border-width: 2px; -fx-border-radius: 10px;");
+        optimalCostSolution.setStyle("-fx-background-color: #FFF5E0;" +
+                " -fx-text-fill: #4bffff;" +
+                " -fx-font-size: 16px; -fx-padding: 0.5em;" +
+                " -fx-background-radius: 10px;" +
+                " -fx-border-color: #ff0000;" +
+                " -fx-border-width: 2px;" +
+                " -fx-border-radius: 10px;");
 
         optimalCostSolution.setAlignment(Pos.CENTER);
 
@@ -182,26 +202,54 @@ public class SolutionScreen {
         CellInfo[] solutionInfo = dpTable[start][end].getCellInfos();
 
 
-        Button alternativeButton = new Button("Alternative Paths");
-        alternativeButton.setOnAction(e -> {
+        // Buttons
+        Button altBtn = createStyledButton("Load alternative paths");
+        Button backBtn = createStyledButton("Back");
+        Button tableBtn = createStyledButton("Show DP table");
+
+        altBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
+        altBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        altBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        backBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
+        backBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        backBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        tableBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
+        tableBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        tableBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
+
+        altBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
+        backBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
+        tableBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
+
+        VBox buttonsBox = new VBox(20);
+        buttonsBox.getChildren().addAll(altBtn,tableBtn,backBtn);
+        buttonsBox.setAlignment(Pos.CENTER);
+        // Buttons Actions
+
+        altBtn.setOnAction(e -> {
             showDetailsStage(solutionInfo);
         });
-        alternativeButton.setMaxWidth(Double.MAX_VALUE);
 
 
+        backBtn.setOnAction(e -> {
+        playSound("/clickSound.wav");
+            StartScene startScene = new StartScene();
+            Scene scene = startScene.createScene(stage); // Create the scene
+            mainApp.switchToScene(scene);  // Switch to the new scene using Main's method
+        });
 
-        Button backButton = new Button("Back");
-        backButton.setMaxWidth(Double.MAX_VALUE);
+        tableBtn.setOnAction(e ->{
 
-        backButton.setOnAction(e -> {
-            stage.setScene(scene);
         });
 
 
-        VBox rightBox = new VBox(10, minLabel, optimalCostSolution, optimalPathLabel, optimalPathSolution,
-                alternativeButton, backButton);
-        rightBox.setAlignment(Pos.CENTER);
-        rightBox.setPadding(new Insets(25));
+
+        VBox contentBox = new VBox(10, minTxt1,minTxt2, optimalCostSolution, optimalPathLabel, optimalPathSolution,
+               buttonsBox);
+        contentBox.setAlignment(Pos.CENTER);
+        contentBox.setPadding(new Insets(25));
 
 
         // Dynamic content resizing and style application
@@ -212,26 +260,58 @@ public class SolutionScreen {
         optimalCostSolution.setMinWidth(maxWidth);
         optimalPathSolution.setMinWidth(maxWidth);
 
-        border.setRight(rightBox);
-        BorderPane.setMargin(rightBox, new Insets(0, 150, 0, 0));
+        border.setCenter(contentBox);
+        border.setMargin(contentBox, new Insets(0, 150, 0, 0));
 
 
+        // Set background for the border
+        Image backgroundImage = new Image("/solBk.gif");
+        BackgroundImage bgImage = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                new BackgroundSize(100, 100, true, true, false, true)
+        );
+        border.setBackground(new Background(bgImage));
 
-        // Button for navigating back to the previous scene.
-        Button back = new Button("Back");
 
-        back.setOnAction(e -> {
-            stage.setScene(scene);
-            stage.centerOnScreen();
-            stage.setFullScreen(true);
-
-        });
 
         return new Scene(border, 800, 600);
 
 
     }
 
+    private Button createStyledButton(String labelText) {
+        Button button = new Button(labelText);
+        button.setStyle("-fx-background-color: #68af3d; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 15px; -fx-padding: 10px 20px;");
+        button.setPrefWidth(200);
+
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
+        scaleTransition.setToX(1.2);
+        scaleTransition.setToY(1.2);
+
+        ScaleTransition resetScaleTransition = new ScaleTransition(Duration.millis(200), button);
+        resetScaleTransition.setToX(1.0);
+        resetScaleTransition.setToY(1.0);
+
+        DropShadow hoverGlow = new DropShadow();
+        hoverGlow.setColor(Color.LIGHTBLUE);
+        hoverGlow.setRadius(15);
+        hoverGlow.setSpread(0.5);
+
+        button.setOnMouseEntered(e -> {
+            scaleTransition.playFromStart();
+            button.setEffect(hoverGlow);
+        });
+
+        button.setOnMouseExited(e -> {
+            resetScaleTransition.playFromStart();
+            button.setEffect(null);
+        });
+
+        return button;
+    }
 
     public Text createStyledText(String textContent) {
         Text text = new Text(textContent);
@@ -258,6 +338,22 @@ public class SolutionScreen {
             }
         }
 
+    }
+
+    public void playSound(String fileName) {
+        try {
+            URL soundURL = getClass().getResource(fileName);
+            if (soundURL == null) {
+                System.out.println("no such sound file exists " + fileName);
+                return;
+            }
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundURL);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
