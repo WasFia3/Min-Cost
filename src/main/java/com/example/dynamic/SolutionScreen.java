@@ -508,41 +508,49 @@ public class SolutionScreen {
      * @param cellInfos Array of CellInfo objects containing alternative solutions
      */
     private void showDetailsStage(CellInfo[] cellInfos) {
-        // Create a new stage
         Stage detailStage = new Stage();
 
-        VBox layout = new VBox(10);
-        layout.setAlignment(Pos.CENTER);
-        layout.getStylesheets().add("theme.css");
+        VBox contentBox = new VBox(10);
+        contentBox.setAlignment(Pos.CENTER);
+        contentBox.setPadding(new Insets(20));
+
+        BorderPane root = new BorderPane(contentBox);
+
+        Image backgroundImage = new Image("altBk.gif");
+        BackgroundImage bgImage = new BackgroundImage(
+                backgroundImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                new BackgroundSize(100, 100, true, true, false, true)
+        );
+        root.setBackground(new Background(bgImage));
 
         if (cellInfos != null) {
             Label alternativeLabel = new Label("Alternative Solutions");
-            alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
-            alternativeLabel.setAlignment(Pos.CENTER);
+            alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; -fx-padding: 2; -fx-font-size: 16px;");
+            contentBox.getChildren().add(alternativeLabel);
 
-            layout.getChildren().add(alternativeLabel);
-
-            for (int i = 0; i < cellInfos.length; i++)
-                if (cellInfos[i] != null) {
-                    Label alternative = new Label("Alternative Solution : " + cellInfos[i].getOptimalPath()
-                            + " With Cost " + cellInfos[i].getOptimalCost());
+            for (CellInfo cellInfo : cellInfos) {
+                if (cellInfo != null) {
+                    Label alternative = new Label("Alternative Solution : " + cellInfo.getOptimalPath()
+                            + " With Cost " + cellInfo.getOptimalCost());
                     alternative.setStyle(
-                            "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-
-                    alternative.setAlignment(Pos.CENTER);
-
-                    layout.getChildren().add(alternative);
-
+                            "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; " +
+                                    "-fx-padding: 0.5em; -fx-background-radius: 10px; " +
+                                    "-fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
+                    contentBox.getChildren().add(alternative);
                 }
+            }
         }
 
-        Scene scene = new Scene(layout, 600, 500);
-
-        // Configure and show the stage
-        detailStage.setTitle("Path Details");
+        Scene scene = new Scene(root, 1000, 500);
+        detailStage.setTitle("Alternative Solutions");
         detailStage.setScene(scene);
         detailStage.show();
     }
+
+
 
     /**
      * Generates an array of random color codes.
