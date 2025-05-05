@@ -61,7 +61,6 @@ public class StartScene {
         fileInfoBox.setPadding(new Insets(10));
         fileInfoBox.setAlignment(Pos.CENTER_LEFT);
         fileInfoBox.setStyle("-fx-background-color: rgba(186,250,169,0.53); -fx-background-radius: 10px;");
-        fileInfoBox.setVisible(false);
 
         ImageView fileIcon = new ImageView(new Image(getClass().getResourceAsStream("/fileIcon.png")));
         fileIcon.setFitWidth(24);

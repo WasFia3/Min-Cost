@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -176,26 +177,57 @@ public class SolutionScreen {
         minTxt2.setStrokeWidth(2);
 
 
-        Label optimalCostSolution = new Label(String.valueOf(dpTable[start][end].getOptimalCost()));
-        optimalCostSolution.setStyle("-fx-background-color: #FFF5E0;" +
-                " -fx-text-fill: #4bffff;" +
-                " -fx-font-size: 16px; -fx-padding: 0.5em;" +
-                " -fx-background-radius: 10px;" +
-                " -fx-border-color: #ff0000;" +
-                " -fx-border-width: 2px;" +
-                " -fx-border-radius: 10px;");
+        Label optimalCostSolution = new Label("Optimal cost: "+String.valueOf(dpTable[start][end].getOptimalCost()));
+        optimalCostSolution.setStyle("-fx-text-fill: #465e43; -fx-font-size: 16px; -fx-font-style: italic;");
+
 
         optimalCostSolution.setAlignment(Pos.CENTER);
 
-        Label optimalPathLabel = new Label("Optimal Path Between " + this.source + " and " + this.dest);
-        optimalPathLabel.setStyle("-fx-text-fill: #00ffbb; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
+        HBox optimalSolBox = new HBox(10);
+        optimalSolBox.setPadding(new Insets(10));
+        optimalSolBox.setAlignment(Pos.CENTER_LEFT);
+        optimalSolBox.setStyle("-fx-background-color: rgba(250,231,169,0.53); -fx-background-radius: 10px;");
+
+        ImageView optimalIcon = new ImageView(new Image(getClass().getResourceAsStream("/optimalIcon.png")));
+        optimalIcon.setFitWidth(24);
+        optimalIcon.setFitHeight(24);
+
+
+        // Adjust the size to match the content
+        optimalSolBox.setMaxWidth(Region.USE_PREF_SIZE);
+        optimalSolBox.setMaxHeight(Region.USE_PREF_SIZE);
+
+
+        optimalSolBox.getChildren().addAll(optimalIcon, optimalCostSolution);
+        optimalSolBox.setAlignment(Pos.CENTER);
+
+
+
+
+
+        Label optimalPathLabel = new Label("Optimal Path Between start city and end city: " +dpTable[start][end].getOptimalPath());
+        optimalPathLabel.setFont(Font.font("Comic Sans MS"));
+        optimalPathLabel.setStyle("-fx-text-fill: #465e43; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
         optimalPathLabel.setAlignment(Pos.CENTER);
 
-        Label optimalPathSolution = new Label(dpTable[start][end].getOptimalPath());
-        optimalPathSolution.setStyle(
-                "-fx-background-color: #FFF5E0; -fx-text-fill: #11448a; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #003fff; -fx-border-width: 2px; -fx-border-radius: 10px;");
+        HBox optPathBox = new HBox(10);
+        optPathBox.setPadding(new Insets(10));
+        optPathBox.setAlignment(Pos.CENTER_LEFT);
+        optPathBox.setStyle("-fx-background-color: rgba(250,231,169,0.53); -fx-background-radius: 10px;");
 
-        optimalPathSolution.setAlignment(Pos.CENTER);
+        ImageView optimalPathIcon = new ImageView(new Image(getClass().getResourceAsStream("/optPathIcon.png")));
+        optimalPathIcon.setFitWidth(24);
+        optimalPathIcon.setFitHeight(24);
+
+
+        // Adjust the size to match the content
+        optPathBox.setMaxWidth(Region.USE_PREF_SIZE);
+        optPathBox.setMaxHeight(Region.USE_PREF_SIZE);
+
+
+        optPathBox.getChildren().addAll(optimalPathIcon, optimalPathLabel);
+        optPathBox.setAlignment(Pos.CENTER);
+
 
 
 
@@ -246,19 +278,12 @@ public class SolutionScreen {
 
 
 
-        VBox contentBox = new VBox(10, minTxt1,minTxt2, optimalCostSolution, optimalPathLabel, optimalPathSolution,
+        VBox contentBox = new VBox(10, minTxt1,minTxt2, optimalSolBox, optPathBox,
                buttonsBox);
         contentBox.setAlignment(Pos.CENTER);
         contentBox.setPadding(new Insets(25));
 
 
-        // Dynamic content resizing and style application
-        double maxWidth = Math.max(optimalCostSolution.getLayoutBounds().getWidth(),
-                optimalPathSolution.getLayoutBounds().getWidth());
-        maxWidth += 100; // Additional padding for aesthetics
-
-        optimalCostSolution.setMinWidth(maxWidth);
-        optimalPathSolution.setMinWidth(maxWidth);
 
         border.setCenter(contentBox);
         border.setMargin(contentBox, new Insets(0, 150, 0, 0));
