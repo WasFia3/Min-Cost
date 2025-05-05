@@ -8,11 +8,6 @@ import javafx.stage.Stage;
 import java.io.File;
 
 public class Main extends Application {
-
-    File file;
-    City[] citiesList;
-    String source;
-    String dest;
     Stage stage;
 
     public void start(Stage stage) throws Exception {

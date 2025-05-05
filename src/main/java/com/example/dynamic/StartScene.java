@@ -95,8 +95,6 @@ public class StartScene {
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/appIcon.png")));
 
 
-
-
         // ACTIONS
 
         fileBtn.setOnAction(e -> {

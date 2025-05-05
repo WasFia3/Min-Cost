@@ -30,8 +30,6 @@ public class BuildTable {
 
     private Stage stage; // Stage for the application
 
-    private final int prefWidth = 50; // Preferred width for cells and labels in the grid
-    private final int prefHeight = 10; // Preferred height for cells and labels in the grid
     private int numberOfStages; // Number of stages in the journey
 
     public Scene createScene(Stage stage, City[] cities, String source, String dest, CellInfo[][] dpTable, int start, int end) {
@@ -53,7 +51,6 @@ public class BuildTable {
         gridPane.setVgap(10);
 
         this.numberOfStages = cities[cities.length - 1].getStage();
-        String[] colors = arrayOfColors(this.numberOfStages);
 
         generateDPTable(); // Generates data
 
@@ -61,8 +58,8 @@ public class BuildTable {
         for (int i = start; i <= end; i++) {
             Label header = new Label(cities[i].getName());
             header.setAlignment(Pos.CENTER);
-            header.setPrefWidth(prefWidth);
-            header.setPrefHeight(prefHeight);
+            header.setPrefWidth(40);
+            header.setPrefHeight(5);
             gridPane.add(header, i + 1, 0);
         }
 
@@ -70,8 +67,8 @@ public class BuildTable {
         for (int i = start; i <= end; i++) {
             Label rowHeader = new Label(cities[i].getName());
             rowHeader.setAlignment(Pos.CENTER);
-            rowHeader.setPrefWidth(prefWidth * 1.5);  // Increase width
-            rowHeader.setPrefHeight(prefHeight * 1.5);  // Increase height
+            rowHeader.setPrefWidth(40 * 1.5);  // Increase width
+            rowHeader.setPrefHeight(5 * 1.5);  // Increase height
             rowHeader.setStyle(
                     "-fx-background-color: rgba(250,231,169,0.53); " +
                             "-fx-text-fill: #465e43; " +
@@ -103,8 +100,8 @@ public class BuildTable {
                     });
 
                     cell.setAlignment(Pos.CENTER);
-                    cell.setPrefWidth(prefWidth * 1.5);  // Increase width
-                    cell.setPrefHeight(prefHeight * 1.5);  // Increase height
+                    cell.setPrefWidth(50 * 1.5);  // Increase width
+                    cell.setPrefHeight(5 * 1.5);  // Increase height
                     cell.setStyle(
                             "-fx-background-color: rgba(250,231,169,0.53); " +
                                     "-fx-text-fill: #465e43; " +

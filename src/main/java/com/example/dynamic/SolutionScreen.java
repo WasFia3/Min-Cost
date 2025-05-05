@@ -2,8 +2,6 @@ package com.example.dynamic;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Random;
-
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,11 +20,6 @@ import javafx.util.Duration;
 
 import javax.sound.sampled.*;
 
-/**
- * The SolutionScreen class extends BorderPane and is used to display a solution screen
- * for a dynamic programming problem in a graphical user interface. It visualizes the
- * dynamic programming table along with paths and costs.
- */
 public class SolutionScreen {
 
     City[] cities; // Array of City objects
@@ -37,14 +30,6 @@ public class SolutionScreen {
     private int start, end; // Indices for source and destination cities within the array
 
     private Stage stage; // Stage for the application
-
-
-
-
-    private final int prefWidth = 50; // Preferred width for cells and labels in the grid
-    private final int prefHeight = 10; // Preferred height for cells and labels in the grid
-
-    private int numberOfStages; // Number of stages in the journey
 
 
     public Scene createScene(Stage stage, City[] cities, String source, String dest) {
@@ -242,14 +227,6 @@ public class SolutionScreen {
         return button;
     }
 
-    public Text createStyledText(String textContent) {
-        Text text = new Text(textContent);
-        text.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
-        text.setFill(Color.web("#68af3d"));
-        text.setStroke(Color.BLACK);
-        text.setStrokeWidth(2);
-        return text;
-    }
 
     /**
      * Initializes the source and destination indices based on the cities array.
@@ -356,54 +333,6 @@ public class SolutionScreen {
         cellInfo.setCellInfos(cellInfos);
         return cellInfo;
 
-    }
-
-    /**
-     * Creates and shows a new stage displaying the details for a specific cell, including alternative solutions.
-     * @param message The message to display in the stage
-     * @param cellInfos Array of alternative CellInfo objects for additional details
-     */
-    private void showDetailsStage(String message, CellInfo[] cellInfos) {
-        // Create a new stage
-        Stage detailStage = new Stage();
-
-        // Set the content of the stage
-        Label messageLabel = new Label(message);
-        messageLabel.setStyle(
-                "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-
-        messageLabel.setWrapText(true);
-        VBox layout = new VBox(10);
-        layout.setAlignment(Pos.CENTER);
-        layout.getChildren().add(messageLabel);
-
-        if (cellInfos != null) {
-            Label alternativeLabel = new Label("Alternative Solutions");
-            alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
-            alternativeLabel.setAlignment(Pos.CENTER);
-
-            layout.getChildren().add(alternativeLabel);
-
-            for (int i = 0; i < cellInfos.length; i++)
-                if (cellInfos[i] != null) {
-                    Label alternative = new Label("Alternative Solution : " + cellInfos[i].getOptimalPath()
-                            + " With Cost " + cellInfos[i].getOptimalCost());
-                    alternative.setStyle(
-                            "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-
-                    alternative.setAlignment(Pos.CENTER);
-
-                    layout.getChildren().add(alternative);
-
-                }
-        }
-
-        Scene scene = new Scene(layout, 600, 500);
-
-        // Configure and show the stage
-        detailStage.setTitle("Path Details");
-        detailStage.setScene(scene);
-        detailStage.show();
     }
 
     private void showAlternativeStage(CellInfo[] cellInfos) {
