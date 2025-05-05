@@ -224,26 +224,6 @@ public class BuildTable {
 
     }
 
-    private String[] arrayOfColors(int size) {
-        Random rand = new Random();
-        String[] colorCodes = new String[size + 1]; // Array to hold color codes
-
-        for (int i = 0; i < colorCodes.length; i++) {
-            // Generate random colors
-            float r = rand.nextFloat();
-            float g = rand.nextFloat();
-            float b = rand.nextFloat();
-
-            // Create a color object
-            Color color = new Color(r, g, b, 1.0);
-
-            // Convert color to hexadecimal (stripping alpha value)
-            colorCodes[i] = String.format("#%02X%02X%02X", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
-                    (int) (color.getBlue() * 255));
-        }
-
-        return colorCodes;
-    }
 
     private void generateDPTable() {
         dpTable = new CellInfo[cities.length][cities.length];
