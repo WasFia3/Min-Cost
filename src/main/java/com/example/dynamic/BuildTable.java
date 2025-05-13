@@ -18,7 +18,6 @@ import javafx.util.Duration;
 import javax.sound.sampled.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Random;
 
 public class BuildTable {
     City[] cities; // Array of City objects
@@ -140,8 +139,8 @@ public class BuildTable {
 
         backButton.setOnAction(e -> {
             playSound("/clickSound.wav");
-            SolutionScreen solutionScreen = new SolutionScreen();
-            Scene scene = solutionScreen.createScene(stage, cities, source, dest); // Create the scene
+            CalculationScreen calculationScreen = new CalculationScreen();
+            Scene scene = calculationScreen.createScene(stage, cities, source, dest); // Create the scene
             mainApp.switchToScene(scene);  // Switch to the new scene using Main's method
         });
 

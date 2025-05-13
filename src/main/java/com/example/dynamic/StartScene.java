@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class StartScene {
@@ -31,7 +32,7 @@ public class StartScene {
     City[] citiesList;
     String source;
     String dest;
-    Stage stage;
+
     public Scene createScene(Stage stage) {
 
         // Ensure Main instance is properly set
@@ -111,19 +112,13 @@ public class StartScene {
                 fileNameLabel.setText(file.getName());
                 fileInfoBox.setVisible(true);
             }
-            try {
-                readCities();
-            } catch (FileNotFoundException e2) {
-            } catch (Exception e2) {
-                createAlert(Alert.AlertType.ERROR,"Error","Invalid or corrupted file format.","Please upload a properly formatted file.");
-            }
+
         });
 
 
         // Start button action
 
         startBtn.setOnAction(e -> {
-            //
             playSound("/clickSound.wav");
 
             if (file == null || !file.exists()) {
@@ -133,8 +128,8 @@ public class StartScene {
 
             try {
                 readCities();
-                SolutionScreen solutionScreen = new SolutionScreen();
-                stage.setScene(solutionScreen.createScene(stage,citiesList,source,dest));
+                CalculationScreen calculationScreen = new CalculationScreen();
+                stage.setScene(calculationScreen.createScene(stage,citiesList,source,dest));
                 stage.setMaximized(true);
             } catch (Exception ex) {
                 createAlert(Alert.AlertType.ERROR,"Error","Invalid or corrupted file format.","Please upload a properly formatted file.");
@@ -214,46 +209,97 @@ public class StartScene {
     private void readCities() throws IOException {
         if (file == null)
             throw new FileNotFoundException();
-        try (Scanner sc = new Scanner(file)) {
-            int numberOfCities = Integer.parseInt(sc.nextLine().trim());
-            String[] tkz = sc.nextLine().split(",");
-            source = tkz[0].trim();
-            dest = tkz[1].trim();
+        try{
+            Scanner scan = new Scanner(file);
+
+            // Get number of cities
+            int numberOfCities = Integer.parseInt(scan.nextLine().trim());
+            System.out.println("the number of cities:"+ numberOfCities);
+
+
+            String[] first_line = scan.nextLine().split(",");
+            source = first_line[0].trim();
+            dest = first_line[1].trim();
+
+            // Assign the list of Cities size with the number of cities
             citiesList = new City[numberOfCities];
+
+            // Print the first line
+            System.out.println(Arrays.toString(first_line));
+
 
             int number = 0;
             int totalLines = 1;
             int firstLine = 0;
             int stage = 1;
             City city = null;
-            while (sc.hasNextLine()) {
-                String[] lineInfo = sc.nextLine().split(",");
+
+
+            while (scan.hasNextLine()) {
+                // Read and trim the current line from the file
+                String line = scan.nextLine().trim();
+
+                // Split the city name from the rest of the line using the first comma only
+                int firstComma = line.indexOf(',');
+                String cityName = line.substring(0, firstComma).trim();
+                String rest = line.substring(firstComma + 1).trim();
+
+                // Debug: Print the current city and its connections line
+                System.out.println("--------------------------------------------------");
+                System.out.println("Reading line: " + line);
+                System.out.println("Parsed city name: " + cityName);
+                System.out.println("Raw connections string: " + rest);
+
+                // Split the rest of the line into connection blocks like [A,22,70]
+                String[] connections = rest.split("(?<=\\]),\\s*");
+
+                // If it's the first city, create it manually with no connections yet
                 if (number == 0) {
-                    city = new City(lineInfo[0], 0, 0, new int[0]);
+                    city = new City(cityName, 0, 0, new int[0]);
                     citiesList[number++] = city;
+                    System.out.println("Created starting city: " + cityName);
                 }
-                for (int i = 1; i < lineInfo.length; i++) {
-                    lineInfo[i] = lineInfo[i].trim();
-                    String[] info = lineInfo[i].substring(1, lineInfo[i].length() - 1).split(":");
+
+                // Loop through all connections for this city
+                for (String conn : connections) {
+                    conn = conn.trim();
+                    conn = conn.substring(1, conn.length() - 1); // Remove brackets [ and ]
+                    String[] data = conn.split(",");
+                    for (int j = 0; j < data.length; j++) data[j] = data[j].trim(); // Remove extra whitespace
+
+                    // Debug: Print parsed connection data
+                    System.out.println("Parsed connection data: " + Arrays.toString(data));
+
                     if (firstLine == 0) {
-                        int[] arr = new int[totalLines];
-                        arr[0] = Integer.parseInt(info[1]);
-                        city = new City(info[0], stage, Integer.parseInt(info[2]), arr);
-                        citiesList[number] = city;
-                        number++;
+                        // First row: Create new city objects
+                        int[] petrolCosts = new int[totalLines];
+                        petrolCosts[0] = Integer.parseInt(data[1]); // Petrol cost from start city
+                        city = new City(data[0], stage, Integer.parseInt(data[2]), petrolCosts);
+                        citiesList[number++] = city;
+                        System.out.println("Added new city: " + data[0] + " with petrol cost: " + data[1] + " and stage cost: " + data[2]);
                     } else {
-                        String cityName = info[0];
-                        getCity(cityName, numberOfCities).getPetrolCost()[firstLine] = Integer.parseInt(info[1]);
+                        // Update petrol cost for existing cities
+                        String connCity = data[0];
+                        int cost = Integer.parseInt(data[1]);
+                        getCity(connCity, numberOfCities).getPetrolCost()[firstLine] = cost;
+                        System.out.println("Updated petrol cost for city " + connCity + " at line " + firstLine + ": " + cost);
                     }
                 }
+
+                // Update stage and counters
                 if (firstLine == 0)
                     stage++;
                 firstLine++;
+
+                // If all lines of connections for current row are processed, reset counters
                 if (firstLine == totalLines) {
                     firstLine = 0;
-                    totalLines = lineInfo.length - 1;
+                    totalLines = connections.length;
+                    System.out.println("Finished reading a full layer. totalLines set to: " + totalLines);
                 }
             }
+
+
         } catch (IOException e) {
             throw new IOException();
         }

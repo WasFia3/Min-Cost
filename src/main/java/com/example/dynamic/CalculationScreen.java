@@ -20,7 +20,7 @@ import javafx.util.Duration;
 
 import javax.sound.sampled.*;
 
-public class SolutionScreen {
+public class CalculationScreen {
 
     City[] cities; // Array of City objects
      String source; // Source city name
