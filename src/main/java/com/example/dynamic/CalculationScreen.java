@@ -25,7 +25,7 @@ public class CalculationScreen {
     City[] cities; // Array of City objects
      String source; // Source city name
      String dest; // Destination city name
-    CellInfo[][] dpTable; // 2D array representing the dynamic programming table
+    NodeSolution[][] dpTable; // 2D array representing the dynamic programming table
 
     private int start, end; // Indices for source and destination cities within the array
 
@@ -117,7 +117,7 @@ public class CalculationScreen {
 
 
 
-        CellInfo[] solutionInfo = dpTable[start][end].getCellInfos();
+        NodeSolution[] solutionInfo = dpTable[start][end].getCellInfos();
 
 
         // Buttons
@@ -266,7 +266,7 @@ public class CalculationScreen {
      * Generates the dynamic programming table for the problem using the cities' information.
      */
     private void generateDPTable() {
-        dpTable = new CellInfo[cities.length][cities.length];
+        dpTable = new NodeSolution[cities.length][cities.length];
 
         for (int i = 0; i < cities.length; i++) {
             int[] petrolCost = cities[i].getPetrolCost();
@@ -280,9 +280,9 @@ public class CalculationScreen {
                 }
 
             for (int j = 0; j < petrolCost.length; j++) {
-                CellInfo cellInfo = new CellInfo(cities[i].getHotelCost() + petrolCost[j],
+                NodeSolution nodeSolution = new NodeSolution(cities[i].getHotelCost() + petrolCost[j],
                         cities[j + count].getName() + " -> " + cities[i].getName());
-                dpTable[j + count][i] = cellInfo;
+                dpTable[j + count][i] = nodeSolution;
 
             }
         }
@@ -298,15 +298,15 @@ public class CalculationScreen {
      * Determines and sets the optimal cost and path for a particular cell in the dynamic programming table.
      * @param i Source city index
      * @param j Destination city index
-     * @return CellInfo object with the minimal cost and path
+     * @return NodeSolution object with the minimal cost and path
      */
-    private CellInfo setCost(int i, int j) {
+    private NodeSolution setCost(int i, int j) {
         int stage = cities[j].getStage() - 1;
         int min = Integer.MAX_VALUE;
 
         int optimal_i = 0, optimal_k = 0;
 
-        CellInfo[] cellInfos = new CellInfo[3];
+        NodeSolution[] nodeSolutions = new NodeSolution[3];
         byte cellInfoCounter = 0;
         for (int k = i + 1; k < j; k++) {
             if (dpTable[i][k] != null && dpTable[k][j] != null) {
@@ -314,9 +314,9 @@ public class CalculationScreen {
                 int cost = dpTable[i][k].getOptimalCost() + dpTable[k][j].getOptimalCost();
 
                 if (cellInfoCounter < 3) {
-                    CellInfo cellInfo = new CellInfo(cost,
+                    NodeSolution nodeSolution = new NodeSolution(cost,
                             dpTable[i][k].getOptimalPath() + " -> " + cities[j].getName());
-                    cellInfos[cellInfoCounter++] = cellInfo;
+                    nodeSolutions[cellInfoCounter++] = nodeSolution;
                 }
 
                 if (cities[k].getStage() == stage && cost < min) {
@@ -327,15 +327,15 @@ public class CalculationScreen {
             }
         }
 
-        CellInfo cellInfo = new CellInfo(min,
+        NodeSolution nodeSolution = new NodeSolution(min,
                 dpTable[optimal_i][optimal_k].getOptimalPath() + " -> " + cities[j].getName());
 
-        cellInfo.setCellInfos(cellInfos);
-        return cellInfo;
+        nodeSolution.setCellInfos(nodeSolutions);
+        return nodeSolution;
 
     }
 
-    private void showAlternativeStage(CellInfo[] cellInfos) {
+    private void showAlternativeStage(NodeSolution[] nodeSolutions) {
         Stage detailStage = new Stage();
 
         VBox contentBox = new VBox(15);
@@ -359,7 +359,7 @@ public class CalculationScreen {
         );
         root.setBackground(new Background(bgImage));
 
-        if (cellInfos != null && dpTable[start][end] != null) {
+        if (nodeSolutions != null && dpTable[start][end] != null) {
             // Title
             Label alternativeLabel = new Label("Optimal Path Between start city and end city:\n" + dpTable[start][end].getOptimalPath());
             alternativeLabel.setFont(Font.font("Comic Sans MS", 20));
@@ -377,8 +377,8 @@ public class CalculationScreen {
             contentBox.getChildren().add(titleBox);
 
             // Alternatives
-            for (CellInfo cellInfo : cellInfos) {
-                if (cellInfo != null) {
+            for (NodeSolution nodeSolution : nodeSolutions) {
+                if (nodeSolution != null) {
                     VBox altBox = new VBox(5);
                     altBox.setPadding(new Insets(12));
                     altBox.setSpacing(4);
@@ -390,7 +390,7 @@ public class CalculationScreen {
                                     "-fx-border-width: 2px;"
                     );
 
-                    Label pathLabel = new Label("Alternative Path: " + cellInfo.getOptimalPath());
+                    Label pathLabel = new Label("Alternative Path: " + nodeSolution.getOptimalPath());
                     pathLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
                     pathLabel.setTextFill(Color.web("#34495e"));
                     pathLabel.setWrapText(true);
@@ -400,7 +400,7 @@ public class CalculationScreen {
                     moneyIcon.setFitWidth(18);
                     moneyIcon.setFitHeight(18);
 
-                    Label costLabel = new Label("Cost: " + cellInfo.getOptimalCost());
+                    Label costLabel = new Label("Cost: " + nodeSolution.getOptimalCost());
                     costLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 15));
                     costLabel.setTextFill(Color.web("#2c3e50"));
 

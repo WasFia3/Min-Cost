@@ -23,7 +23,7 @@ public class BuildTable {
     City[] cities; // Array of City objects
     String source; // Source city name
     String dest; // Destination city name
-    CellInfo[][] dpTable; // 2D array representing the dynamic programming table
+    NodeSolution[][] dpTable; // 2D array representing the dynamic programming table
 
     private int start, end; // Indices for source and destination cities within the array
 
@@ -31,7 +31,7 @@ public class BuildTable {
 
     private int numberOfStages; // Number of stages in the journey
 
-    public Scene createScene(Stage stage, City[] cities, String source, String dest, CellInfo[][] dpTable, int start, int end) {
+    public Scene createScene(Stage stage, City[] cities, String source, String dest, NodeSolution[][] dpTable, int start, int end) {
 
         Main mainApp = (Main) stage.getUserData();
 
@@ -88,15 +88,19 @@ public class BuildTable {
                 if (dpTable[i][j] != null) {
                     Label cell = new Label(String.valueOf(dpTable[i][j].getOptimalCost()));
                     String optimalPath = dpTable[i][j].getOptimalPath().toString();
-                    String city_i = cities[i].getName(), city_j = cities[j].getName();
-                    CellInfo[] cellInfos = dpTable[i][j].getCellInfos();
+                    final int finalI = i;
+                    final int finalJ = j;
+                    String city_i = cities[finalI].getName();
+                    String city_j = cities[finalJ].getName();
+                    NodeSolution[] nodeSolutions = dpTable[finalI][finalJ].getCellInfos();
 
                     cell.setOnMouseClicked(event -> {
                         showDetailsStage(
-                                "The Optimal Path Between City " + city_i + " and " + city_j + " is: " + optimalPath,
-                                cellInfos
+                                "The Optimal Path Between City " + city_i + " and " + city_j + " is: " + dpTable[finalI][finalJ].getOptimalPath().toString(),
+                                nodeSolutions
                         );
                     });
+
 
                     cell.setAlignment(Pos.CENTER);
                     cell.setPrefWidth(50 * 1.5);  // Increase width
@@ -186,7 +190,7 @@ public class BuildTable {
     }
 
 
-    private void showDetailsStage(String message, CellInfo[] cellInfos) {
+    private void showDetailsStage(String message, NodeSolution[] nodeSolutions) {
         // Create a new stage
         Stage detailStage = new Stage();
 
@@ -200,17 +204,17 @@ public class BuildTable {
         layout.setAlignment(Pos.CENTER);
         layout.getChildren().add(messageLabel);
 
-        if (cellInfos != null) {
+        if (nodeSolutions != null) {
             Label alternativeLabel = new Label("Alternative Solutions");
             alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
             alternativeLabel.setAlignment(Pos.CENTER);
 
             layout.getChildren().add(alternativeLabel);
 
-            for (int i = 0; i < cellInfos.length; i++)
-                if (cellInfos[i] != null) {
-                    Label alternative = new Label("Alternative Solution : " + cellInfos[i].getOptimalPath()
-                            + " With Cost " + cellInfos[i].getOptimalCost());
+            for (int i = 0; i < nodeSolutions.length; i++)
+                if (nodeSolutions[i] != null) {
+                    Label alternative = new Label("Alternative Solution : " + nodeSolutions[i].getOptimalPath()
+                            + " With Cost " + nodeSolutions[i].getOptimalCost());
                     alternative.setStyle(
                             "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
 
@@ -221,11 +225,17 @@ public class BuildTable {
                 }
         }
 
+        Scene scene = new Scene(layout, 400, 300);
+        detailStage.setScene(scene);
+        detailStage.setTitle("Optimal Path Details");
+        detailStage.show();  // VERY IMPORTANT
+
+
     }
 
 
     private void generateDPTable() {
-        dpTable = new CellInfo[cities.length][cities.length];
+        dpTable = new NodeSolution[cities.length][cities.length];
 
         for (int i = 0; i < cities.length; i++) {
             int[] petrolCost = cities[i].getPetrolCost();
@@ -239,9 +249,9 @@ public class BuildTable {
                 }
 
             for (int j = 0; j < petrolCost.length; j++) {
-                CellInfo cellInfo = new CellInfo(cities[i].getHotelCost() + petrolCost[j],
+                NodeSolution nodeSolution = new NodeSolution(cities[i].getHotelCost() + petrolCost[j],
                         cities[j + count].getName() + " -> " + cities[i].getName());
-                dpTable[j + count][i] = cellInfo;
+                dpTable[j + count][i] = nodeSolution;
 
             }
         }
@@ -300,13 +310,13 @@ public class BuildTable {
         }
     }
 
-    private CellInfo setCost(int i, int j) {
+    private NodeSolution setCost(int i, int j) {
         int stage = cities[j].getStage() - 1;
         int min = Integer.MAX_VALUE;
 
         int optimal_i = 0, optimal_k = 0;
 
-        CellInfo[] cellInfos = new CellInfo[3];
+        NodeSolution[] nodeSolutions = new NodeSolution[3];
         byte cellInfoCounter = 0;
         for (int k = i + 1; k < j; k++) {
             if (dpTable[i][k] != null && dpTable[k][j] != null) {
@@ -314,9 +324,9 @@ public class BuildTable {
                 int cost = dpTable[i][k].getOptimalCost() + dpTable[k][j].getOptimalCost();
 
                 if (cellInfoCounter < 3) {
-                    CellInfo cellInfo = new CellInfo(cost,
+                    NodeSolution nodeSolution = new NodeSolution(cost,
                             dpTable[i][k].getOptimalPath() + " -> " + cities[j].getName());
-                    cellInfos[cellInfoCounter++] = cellInfo;
+                    nodeSolutions[cellInfoCounter++] = nodeSolution;
                 }
 
                 if (cities[k].getStage() == stage && cost < min) {
@@ -327,11 +337,11 @@ public class BuildTable {
             }
         }
 
-        CellInfo cellInfo = new CellInfo(min,
+        NodeSolution nodeSolution = new NodeSolution(min,
                 dpTable[optimal_i][optimal_k].getOptimalPath() + " -> " + cities[j].getName());
 
-        cellInfo.setCellInfos(cellInfos);
-        return cellInfo;
+        nodeSolution.setCellInfos(nodeSolutions);
+        return nodeSolution;
 
     }
 }
