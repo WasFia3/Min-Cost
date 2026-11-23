@@ -5,6 +5,7 @@ import java.net.URL;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -13,8 +14,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -50,33 +51,44 @@ public class CalculationScreen {
 
 
         // Text for min cost
-        Text minTxt1 = new Text("    Result of calculating\n the minimum cost between");
-        minTxt1.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
-        minTxt1.setFill(Color.web("#68af3d"));
-        minTxt1.setStroke(Color.FORESTGREEN);
-        minTxt1.setStrokeWidth(2);
+        Text minTxt = new Text("Your Cheapest Trip");
+        minTxt.setFont(Font.font("Fredoka SemiBold", 46));
+        minTxt.setFill(Color.web("#3f7d24"));
+        minTxt.setTextAlignment(TextAlignment.CENTER);
 
-        Text minTxt2 = new Text("your start and destination");
-        minTxt2.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 40));
-        minTxt2.setFill(Color.web("#68af3d"));
-        minTxt2.setStroke(Color.FORESTGREEN);
-        minTxt2.setStrokeWidth(2);
+        // Soft white glow so the title stays readable over the animated background
+        DropShadow glow = new DropShadow(14, Color.rgb(255, 255, 255, 0.9));
+        glow.setSpread(0.4);
+        minTxt.setEffect(glow);
+
+        // Trip summary under the title
+        Label tripLabel = new Label(source + "  \u2192  " + dest);
+        tripLabel.setStyle("-fx-text-fill: #4b6b3f; -fx-font-family: 'Nunito Bold'; -fx-font-size: 20px;");
+        VBox.setMargin(tripLabel, new Insets(0, 0, 12, 0));
+
+        String cardStyle = "-fx-background-color: rgba(255,255,255,0.85); -fx-background-radius: 12px; " +
+                "-fx-border-color: rgba(63,125,36,0.25); -fx-border-radius: 12px;";
+        String captionStyle = "-fx-text-fill: #6b8a5e; -fx-font-family: 'Nunito Bold'; -fx-font-size: 13px;";
 
 
-        Label optimalCostSolution = new Label("Optimal cost: "+String.valueOf(dpTable[start][end].getOptimalCost()));
-        optimalCostSolution.setStyle("-fx-text-fill: #465e43; -fx-font-size: 16px; -fx-font-style: italic;");
+        // Optimal cost: small caption + big number
+        Label costCaption = new Label("OPTIMAL COST");
+        costCaption.setStyle(captionStyle);
 
+        Label optimalCostSolution = new Label(String.valueOf(dpTable[start][end].getOptimalCost()));
+        optimalCostSolution.setFont(Font.font("Fredoka SemiBold", 34));
+        optimalCostSolution.setStyle("-fx-text-fill: #3f7d24;");
 
-        optimalCostSolution.setAlignment(Pos.CENTER);
+        VBox costText = new VBox(0, costCaption, optimalCostSolution);
+        costText.setAlignment(Pos.CENTER_LEFT);
 
-        HBox optimalSolBox = new HBox(10);
-        optimalSolBox.setPadding(new Insets(10));
-        optimalSolBox.setAlignment(Pos.CENTER_LEFT);
-        optimalSolBox.setStyle("-fx-background-color: rgba(250,231,169,0.53); -fx-background-radius: 10px;");
+        HBox optimalSolBox = new HBox(12);
+        optimalSolBox.setPadding(new Insets(10, 22, 10, 16));
+        optimalSolBox.setStyle(cardStyle);
 
         ImageView optimalIcon = new ImageView(new Image(getClass().getResourceAsStream("/optimalIcon.png")));
-        optimalIcon.setFitWidth(24);
-        optimalIcon.setFitHeight(24);
+        optimalIcon.setFitWidth(36);
+        optimalIcon.setFitHeight(36);
 
 
         // Adjust the size to match the content
@@ -84,26 +96,32 @@ public class CalculationScreen {
         optimalSolBox.setMaxHeight(Region.USE_PREF_SIZE);
 
 
-        optimalSolBox.getChildren().addAll(optimalIcon, optimalCostSolution);
+        optimalSolBox.getChildren().addAll(optimalIcon, costText);
         optimalSolBox.setAlignment(Pos.CENTER);
 
 
 
 
 
-        Label optimalPathLabel = new Label("Optimal Path Between start city and end city: " +dpTable[start][end].getOptimalPath());
-        optimalPathLabel.setFont(Font.font("Comic Sans MS"));
-        optimalPathLabel.setStyle("-fx-text-fill: #465e43; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
-        optimalPathLabel.setAlignment(Pos.CENTER);
+        // Optimal path: small caption + the path
+        Label pathCaption = new Label("OPTIMAL PATH");
+        pathCaption.setStyle(captionStyle);
 
-        HBox optPathBox = new HBox(10);
-        optPathBox.setPadding(new Insets(10));
-        optPathBox.setAlignment(Pos.CENTER_LEFT);
-        optPathBox.setStyle("-fx-background-color: rgba(250,231,169,0.53); -fx-background-radius: 10px;");
+        Label optimalPathLabel = new Label(dpTable[start][end].getOptimalPath().replace("->", "\u2192"));
+        optimalPathLabel.setStyle("-fx-text-fill: #2f4a28; -fx-font-family: 'Nunito Bold'; -fx-font-size: 17px;");
+        optimalPathLabel.setWrapText(true); // Long paths go to a new line instead of being cut with "..."
+        optimalPathLabel.setMaxWidth(650);
+
+        VBox pathText = new VBox(2, pathCaption, optimalPathLabel);
+        pathText.setAlignment(Pos.CENTER_LEFT);
+
+        HBox optPathBox = new HBox(12);
+        optPathBox.setPadding(new Insets(10, 22, 10, 16));
+        optPathBox.setStyle(cardStyle);
 
         ImageView optimalPathIcon = new ImageView(new Image(getClass().getResourceAsStream("/optPathIcon.png")));
-        optimalPathIcon.setFitWidth(24);
-        optimalPathIcon.setFitHeight(24);
+        optimalPathIcon.setFitWidth(36);
+        optimalPathIcon.setFitHeight(36);
 
 
         // Adjust the size to match the content
@@ -111,7 +129,7 @@ public class CalculationScreen {
         optPathBox.setMaxHeight(Region.USE_PREF_SIZE);
 
 
-        optPathBox.getChildren().addAll(optimalPathIcon, optimalPathLabel);
+        optPathBox.getChildren().addAll(optimalPathIcon, pathText);
         optPathBox.setAlignment(Pos.CENTER);
 
 
@@ -122,31 +140,17 @@ public class CalculationScreen {
 
         // Buttons
         Button altBtn = createStyledButton("Load alternative paths");
-        Button backBtn = createStyledButton("Back");
+        Button backBtn = createStyledButton("Back", true);
         Button tableBtn = createStyledButton("Show DP table");
 
-        altBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
-        altBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        altBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
-
-        backBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
-        backBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        backBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
-
-        tableBtn.setMinWidth(Region.USE_COMPUTED_SIZE);
-        tableBtn.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        tableBtn.setMaxWidth(Region.USE_COMPUTED_SIZE);
-
-        altBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
-        backBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
-        tableBtn.setPadding(new Insets(5, 10, 5, 10)); // top, right, bottom, left
-
-        VBox buttonsBox = new VBox(20);
+        VBox buttonsBox = new VBox(15);
         buttonsBox.getChildren().addAll(altBtn,tableBtn,backBtn);
         buttonsBox.setAlignment(Pos.CENTER);
+        buttonsBox.setPadding(new Insets(15, 0, 0, 0));
         // Buttons Actions
 
         altBtn.setOnAction(e -> {
+            playSound("/clickSound.wav");
             showAlternativeStage(solutionInfo);
         });
 
@@ -167,7 +171,7 @@ public class CalculationScreen {
 
 
 
-        VBox contentBox = new VBox(10, minTxt1,minTxt2, optimalSolBox, optPathBox,
+        VBox contentBox = new VBox(10, minTxt, tripLabel, optimalSolBox, optPathBox,
                buttonsBox);
         contentBox.setAlignment(Pos.CENTER);
         contentBox.setPadding(new Insets(25));
@@ -175,11 +179,10 @@ public class CalculationScreen {
 
 
         border.setCenter(contentBox);
-        border.setMargin(contentBox, new Insets(0, 150, 0, 0));
 
 
         // Set background for the border
-        Image backgroundImage = new Image("/solBk.gif");
+        Image backgroundImage = new Image("/solBk.gif", true); // Loads in the background (the loading screen shows meanwhile)
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
@@ -197,31 +200,46 @@ public class CalculationScreen {
     }
 
     private Button createStyledButton(String labelText) {
+        return createStyledButton(labelText, false);
+    }
+
+    // Primary buttons are solid green, secondary ones (like Back) are white with a green border
+    private Button createStyledButton(String labelText, boolean secondary) {
         Button button = new Button(labelText);
-        button.setStyle("-fx-background-color: #68af3d; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 15px; -fx-padding: 10px 20px;");
-        button.setPrefWidth(200);
 
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
-        scaleTransition.setToX(1.2);
-        scaleTransition.setToY(1.2);
+        String baseStyle = "-fx-font-family: 'Nunito ExtraBold'; -fx-font-size: 17px; -fx-padding: 11px 24px; " +
+                "-fx-background-radius: 12px; -fx-border-radius: 12px; -fx-border-width: 2px; ";
+        String normalStyle = secondary
+                ? "-fx-background-color: rgba(255,255,255,0.92); -fx-text-fill: #3f7d24; -fx-border-color: #5a9e35;"
+                : "-fx-background-color: #5a9e35; -fx-text-fill: white; -fx-border-color: #5a9e35;";
+        String hoverStyle = secondary
+                ? "-fx-background-color: #eef7e8; -fx-text-fill: #3f7d24; -fx-border-color: #4c8a2c;"
+                : "-fx-background-color: #4c8a2c; -fx-text-fill: white; -fx-border-color: #4c8a2c;";
 
-        ScaleTransition resetScaleTransition = new ScaleTransition(Duration.millis(200), button);
+        button.setStyle(baseStyle + normalStyle);
+        button.setPrefWidth(280);
+        button.setCursor(Cursor.HAND); // Hand cursor on hover
+
+        // Soft shadow under the button
+        DropShadow shadow = new DropShadow(8, 0, 3, Color.rgb(47, 93, 30, 0.3));
+        button.setEffect(shadow);
+
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), button);
+        scaleTransition.setToX(1.04);
+        scaleTransition.setToY(1.04);
+
+        ScaleTransition resetScaleTransition = new ScaleTransition(Duration.millis(150), button);
         resetScaleTransition.setToX(1.0);
         resetScaleTransition.setToY(1.0);
 
-        DropShadow hoverGlow = new DropShadow();
-        hoverGlow.setColor(Color.LIGHTBLUE);
-        hoverGlow.setRadius(15);
-        hoverGlow.setSpread(0.5);
-
         button.setOnMouseEntered(e -> {
             scaleTransition.playFromStart();
-            button.setEffect(hoverGlow);
+            button.setStyle(baseStyle + hoverStyle);
         });
 
         button.setOnMouseExited(e -> {
             resetScaleTransition.playFromStart();
-            button.setEffect(null);
+            button.setStyle(baseStyle + normalStyle);
         });
 
         return button;
@@ -257,7 +275,8 @@ public class CalculationScreen {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | IllegalArgumentException e) {
+            // IllegalArgumentException: no audio device available, just skip the sound
             e.printStackTrace();
         }
     }
@@ -341,15 +360,16 @@ public class CalculationScreen {
         VBox contentBox = new VBox(15);
         contentBox.setAlignment(Pos.CENTER_LEFT);
         contentBox.setPadding(new Insets(20));
-        contentBox.setStyle("-fx-background-color: rgba(250,231,169,0.6); -fx-background-radius: 10px;");
+        contentBox.setStyle("-fx-background-color: rgba(255,255,255,0.88); -fx-background-radius: 14px; " +
+                "-fx-border-color: rgba(63,125,36,0.25); -fx-border-radius: 14px;");
         contentBox.setMaxWidth(Region.USE_PREF_SIZE);
         contentBox.setMaxHeight(Region.USE_PREF_SIZE);
 
         BorderPane root = new BorderPane();
-        root.setPadding(new Insets(30));
+        root.setPadding(new Insets(30, 30, 30, 300)); // Extra space on the left for the frog in the background
 
         // Background image setup
-        Image backgroundImage = new Image("altBk.gif");
+        Image backgroundImage = new Image("altBk.gif", true); // Loads in the background so the window opens right away
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
@@ -361,38 +381,47 @@ public class CalculationScreen {
 
         if (nodeSolutions != null && dpTable[start][end] != null) {
             // Title
-            Label alternativeLabel = new Label("Optimal Path Between start city and end city:\n" + dpTable[start][end].getOptimalPath());
-            alternativeLabel.setFont(Font.font("Comic Sans MS", 20));
-            alternativeLabel.setStyle("-fx-text-fill: #2c3e50; -fx-padding: 10;");
+            Label titleCaption = new Label("OPTIMAL PATH FROM " + source.toUpperCase() + " TO " + dest.toUpperCase());
+            titleCaption.setStyle("-fx-text-fill: #6b8a5e; -fx-font-family: 'Nunito Bold'; -fx-font-size: 13px;");
+
+            Label alternativeLabel = new Label(dpTable[start][end].getOptimalPath().replace("->", "\u2192")
+                    + "   (" + dpTable[start][end].getOptimalCost() + ")");
+            alternativeLabel.setStyle("-fx-text-fill: #2f4a28; -fx-font-family: 'Nunito ExtraBold'; -fx-font-size: 19px;");
             alternativeLabel.setWrapText(true);
+
+            VBox titleText = new VBox(2, titleCaption, alternativeLabel);
 
             // Icon
             ImageView optimalPathIcon = new ImageView(new Image(getClass().getResourceAsStream("/optPathIcon.png")));
             optimalPathIcon.setFitWidth(32);
             optimalPathIcon.setFitHeight(32);
 
-            HBox titleBox = new HBox(10, optimalPathIcon, alternativeLabel);
+            HBox titleBox = new HBox(12, optimalPathIcon, titleText);
             titleBox.setAlignment(Pos.CENTER_LEFT);
 
-            contentBox.getChildren().add(titleBox);
+            Label otherPathsLabel = new Label("Other paths");
+            otherPathsLabel.setStyle("-fx-text-fill: #3f7d24; -fx-font-family: 'Fredoka SemiBold'; -fx-font-size: 18px; -fx-padding: 6 0 0 2;");
 
-            // Alternatives
+            contentBox.getChildren().addAll(titleBox, otherPathsLabel);
+
+            // Alternatives (skip the optimal path itself, it's already shown above)
+            int alternativesCount = 0;
             for (NodeSolution nodeSolution : nodeSolutions) {
-                if (nodeSolution != null) {
+                if (nodeSolution != null && !nodeSolution.getOptimalPath().equals(dpTable[start][end].getOptimalPath())) {
+                    alternativesCount++;
                     VBox altBox = new VBox(5);
                     altBox.setPadding(new Insets(12));
                     altBox.setSpacing(4);
                     altBox.setStyle(
-                            "-fx-background-color: linear-gradient(to right, #e0ffe0, #caffd0);" +
+                            "-fx-background-color: #f1f8ec;" +
                                     "-fx-background-radius: 12px;" +
-                                    "-fx-border-color: #2ecc71;" +
+                                    "-fx-border-color: #b9dba6;" +
                                     "-fx-border-radius: 12px;" +
-                                    "-fx-border-width: 2px;"
+                                    "-fx-border-width: 1.5px;"
                     );
 
-                    Label pathLabel = new Label("Alternative Path: " + nodeSolution.getOptimalPath());
-                    pathLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-                    pathLabel.setTextFill(Color.web("#34495e"));
+                    Label pathLabel = new Label(nodeSolution.getOptimalPath().replace("->", "\u2192"));
+                    pathLabel.setStyle("-fx-text-fill: #2f4a28; -fx-font-family: 'Nunito Bold'; -fx-font-size: 16px;");
                     pathLabel.setWrapText(true);
 
                     // Cost label + icon in a horizontal box
@@ -400,9 +429,9 @@ public class CalculationScreen {
                     moneyIcon.setFitWidth(18);
                     moneyIcon.setFitHeight(18);
 
-                    Label costLabel = new Label("Cost: " + nodeSolution.getOptimalCost());
-                    costLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 15));
-                    costLabel.setTextFill(Color.web("#2c3e50"));
+                    Label costLabel = new Label("Cost: " + nodeSolution.getOptimalCost()
+                            + "  (+" + (nodeSolution.getOptimalCost() - dpTable[start][end].getOptimalCost()) + ")");
+                    costLabel.setStyle("-fx-text-fill: #4b6b3f; -fx-font-family: 'Nunito SemiBold'; -fx-font-size: 15px;");
 
                     HBox costBox = new HBox(6, moneyIcon, costLabel);
                     costBox.setAlignment(Pos.CENTER_LEFT);
@@ -412,11 +441,19 @@ public class CalculationScreen {
                 }
             }
 
+            if (alternativesCount == 0) {
+                Label noAlternatives = new Label("There are no other paths for this trip.");
+                noAlternatives.setStyle("-fx-text-fill: #4b6b3f; -fx-font-family: 'Nunito SemiBold'; -fx-font-size: 15px;");
+                contentBox.getChildren().add(noAlternatives);
+            }
+
 
             root.setCenter(contentBox);
         }
 
         Scene scene = new Scene(root, 1000, 600);
+        detailStage.initOwner(stage); // Stays on top of the app and closes with it
+        detailStage.getIcons().addAll(stage.getIcons());
         detailStage.setTitle("Alternative Solutions");
         detailStage.setScene(scene);
         detailStage.show();

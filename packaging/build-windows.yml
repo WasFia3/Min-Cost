@@ -1,0 +1,53 @@
+# Builds the Windows version of the app (with Java included, no install needed)
+# and attaches it to a GitHub Release when a version tag like v1.0.0 is pushed.
+name: Build Windows app
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '22'
+          cache: maven
+
+      # Small Java runtime with only the modules the app needs (target/app)
+      - name: Build runtime image (jlink)
+        run: .\mvnw.cmd -B clean javafx:jlink
+
+      # Windows app folder with "Minimum Cost Calculator.exe"
+      - name: Package app (jpackage)
+        run: >
+          jpackage --type app-image
+          --name "Minimum Cost Calculator"
+          --runtime-image target/app
+          --module com.example.dynamic/com.example.dynamic.Main
+          --icon packaging/appIcon.ico
+          --app-version 1.0.0
+          --vendor "Wasfia Awwad"
+          --dest target/dist
+
+      - name: Zip
+        run: Compress-Archive -Path "target/dist/Minimum Cost Calculator" -DestinationPath "target/dist/MinimumCostCalculator-Windows.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MinimumCostCalculator-Windows
+          path: target/dist/MinimumCostCalculator-Windows.zip
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/dist/MinimumCostCalculator-Windows.zip

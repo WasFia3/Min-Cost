@@ -1,8 +1,10 @@
 package com.example.dynamic;
 
 import javafx.animation.ScaleTransition;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -57,8 +59,15 @@ public class BuildTable {
         for (int i = start; i <= end; i++) {
             Label header = new Label(cities[i].getName());
             header.setAlignment(Pos.CENTER);
-            header.setPrefWidth(40);
-            header.setPrefHeight(5);
+            header.setMinWidth(Region.USE_PREF_SIZE); // Show the full city name instead of "..."
+            header.setMaxWidth(Double.MAX_VALUE);
+            header.setStyle(
+                    "-fx-text-fill: #465e43; " +
+                            "-fx-font-family: 'Nunito ExtraBold'; " +
+                            "-fx-font-size: 15px; " +
+                            "-fx-padding: 0 0.3em;"
+            );
+            GridPane.setHalignment(header, HPos.CENTER);
             gridPane.add(header, i + 1, 0);
         }
 
@@ -66,12 +75,12 @@ public class BuildTable {
         for (int i = start; i <= end; i++) {
             Label rowHeader = new Label(cities[i].getName());
             rowHeader.setAlignment(Pos.CENTER);
-            rowHeader.setPrefWidth(40 * 1.5);  // Increase width
-            rowHeader.setPrefHeight(5 * 1.5);  // Increase height
+            rowHeader.setMinWidth(Region.USE_PREF_SIZE); // Show the full city name instead of "..."
+            rowHeader.setMaxWidth(Double.MAX_VALUE);
             rowHeader.setStyle(
                     "-fx-background-color: rgba(250,231,169,0.53); " +
                             "-fx-text-fill: #465e43; " +
-                            "-fx-font-family: 'Comic Sans MS'; " +
+                            "-fx-font-family: 'Nunito Bold'; " +
                             "-fx-font-size: 16px; " +
                             "-fx-padding: 0.5em; " +
                             "-fx-background-radius: 10px; " +
@@ -95,27 +104,42 @@ public class BuildTable {
                     NodeSolution[] nodeSolutions = dpTable[finalI][finalJ].getCellInfos();
 
                     cell.setOnMouseClicked(event -> {
+                        playSound("/clickSound.wav");
                         showDetailsStage(
-                                "The Optimal Path Between City " + city_i + " and " + city_j + " is: " + dpTable[finalI][finalJ].getOptimalPath().toString(),
+                                "Optimal path from " + city_i + " to " + city_j + ":\n" + optimalPath.replace("->", "\u2192")
+                                        + "\nCost: " + dpTable[finalI][finalJ].getOptimalCost(),
+                                optimalPath,
                                 nodeSolutions
                         );
                     });
 
 
                     cell.setAlignment(Pos.CENTER);
-                    cell.setPrefWidth(50 * 1.5);  // Increase width
-                    cell.setPrefHeight(5 * 1.5);  // Increase height
-                    cell.setStyle(
+                    cell.setMinWidth(70);
+                    cell.setMaxWidth(Double.MAX_VALUE);
+
+                    String cellStyle =
                             "-fx-background-color: rgba(250,231,169,0.53); " +
                                     "-fx-text-fill: #465e43; " +
-                                    "-fx-font-family: 'Comic Sans MS'; " +
+                                    "-fx-font-family: 'Nunito Bold'; " +
                                     "-fx-font-size: 16px; " +
                                     "-fx-padding: 0.5em; " +
                                     "-fx-background-radius: 10px; " +
                                     "-fx-border-color: #a9a26f; " +
                                     "-fx-border-width: 2px; " +
-                                    "-fx-border-radius: 10px;"
-                    );
+                                    "-fx-border-radius: 10px;";
+
+                    // The final answer (start -> end) is highlighted
+                    if (i == start && j == end)
+                        cellStyle += "-fx-background-color: #fae7a9; -fx-border-color: #68af3d; -fx-font-family: 'Nunito ExtraBold';";
+
+                    String normalStyle = cellStyle;
+                    String hoverStyle = cellStyle + "-fx-background-color: #fff5d6; -fx-border-color: #68af3d;";
+
+                    cell.setStyle(normalStyle);
+                    cell.setCursor(Cursor.HAND); // Shows the cell can be clicked
+                    cell.setOnMouseEntered(e -> cell.setStyle(hoverStyle));
+                    cell.setOnMouseExited(e -> cell.setStyle(normalStyle));
 
                     gridPane.add(cell, j + 1, i + 1);
                 }
@@ -125,10 +149,19 @@ public class BuildTable {
         // Label above the table
         Label dynamicLabel = new Label("Dynamic Programming Table");
         dynamicLabel.setStyle(
-                "-fx-text-fill: #465e43; " +
-                        "-fx-font-family: 'Comic Sans MS'; " +
-                        "-fx-font-size: 22px; " +
+                "-fx-text-fill: #3f7d24; " +
+                        "-fx-font-family: 'Fredoka SemiBold'; " +
+                        "-fx-font-size: 26px; " +
                         "-fx-padding: 2;"
+        );
+
+        // Small hint under the title
+        Label hintLabel = new Label("Click any cell to see its path and alternatives");
+        hintLabel.setStyle(
+                "-fx-text-fill: #465e43; " +
+                        "-fx-font-family: 'Nunito SemiBold'; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-opacity: 0.8;"
         );
 
         // Adding frog image at the start or end
@@ -139,7 +172,7 @@ public class BuildTable {
         frogImageView.setPreserveRatio(true); // Maintain aspect ratio
 
         // Creating back button
-        Button backButton = createStyledButton("Back");
+        Button backButton = createStyledButton("Back", true);
 
         backButton.setOnAction(e -> {
             playSound("/clickSound.wav");
@@ -148,31 +181,47 @@ public class BuildTable {
             mainApp.switchToScene(scene);  // Switch to the new scene using Main's method
         });
 
-        // Adding the back button at the bottom of VBox (below the table and frog image)
-        VBox leftBox = new VBox(10, frogImageView, dynamicLabel, gridPane, backButton);
-        leftBox.setAlignment(Pos.CENTER);
+        // Frog image next to the title and hint
+        frogImageView.setFitWidth(80);
+        frogImageView.setFitHeight(80);
+        VBox titleBox = new VBox(2, dynamicLabel, hintLabel);
+        titleBox.setAlignment(Pos.CENTER_LEFT);
+        HBox headerBox = new HBox(15, frogImageView, titleBox);
+        headerBox.setAlignment(Pos.CENTER);
 
-        // ScrollPane with new content (VBox)
+        // ScrollPane with the table only, so the title and the back button are always visible
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(leftBox);
-        scrollPane.setFitToWidth(true);
+        scrollPane.setContent(gridPane);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
+        // Size the scroll area to the table, leaving room for the scroll bar
+        // (when the table is taller than the window, it scrolls inside the panel)
+        scrollPane.prefViewportWidthProperty().bind(gridPane.widthProperty());
+        scrollPane.prefViewportHeightProperty().bind(gridPane.heightProperty());
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
+        gridPane.setPadding(new Insets(5));
+
+        // Adding the back button at the bottom of VBox (below the table and frog image)
+        VBox leftBox = new VBox(15, headerBox, scrollPane, backButton);
+        leftBox.setAlignment(Pos.CENTER);
+        leftBox.setPadding(new Insets(15, 25, 20, 25));
+
         // Adding green gradient to the background
-        scrollPane.setStyle(
-                "-fx-background: transparent; " +
-                        "-fx-border-color: #c9bc8e; " +
+        leftBox.setStyle(
+                "-fx-border-color: #c9bc8e; " +
                         "-fx-border-width: 2px; " +
                         "-fx-border-radius: 10px;" +
+                        "-fx-background-radius: 10px;" +
                         "-fx-background-color: linear-gradient(to bottom, #b0e57c, #8ccf5c);" // Green gradient
         );
-        scrollPane.setPadding(new Insets(10));
 
-        // Adding ScrollPane to the BorderPane
-        border.setLeft(scrollPane);
+        // Adding the panel to the center of the BorderPane (sized to the table, not the whole window)
+        leftBox.setMaxWidth(Region.USE_PREF_SIZE);
+        leftBox.setMaxHeight(Region.USE_PREF_SIZE);
+        border.setCenter(leftBox);
+        BorderPane.setAlignment(leftBox, Pos.CENTER);
         border.setPadding(new Insets(15));
         gridPane.setAlignment(Pos.CENTER);
-        border.setAlignment(gridPane, Pos.CENTER);
 
         // Set background for the border
         Image backgroundImage = new Image("/babyBlueBk.jpg");
@@ -190,42 +239,53 @@ public class BuildTable {
     }
 
 
-    private void showDetailsStage(String message, NodeSolution[] nodeSolutions) {
+    private void showDetailsStage(String message, String optimalPath, NodeSolution[] nodeSolutions) {
         // Create a new stage
         Stage detailStage = new Stage();
+        detailStage.initOwner(stage); // Stays on top of the app and closes with it
+        detailStage.getIcons().addAll(stage.getIcons());
+
+        String boxStyle = "-fx-background-color: rgba(255,255,255,0.92); -fx-text-fill: #2f4a28; -fx-font-family: 'Nunito SemiBold'; -fx-font-size: 16px; -fx-padding: 0.6em 0.8em; -fx-background-radius: 10px; -fx-border-color: rgba(63,125,36,0.3); -fx-border-width: 1.5px; -fx-border-radius: 10px;";
 
         // Set the content of the stage
         Label messageLabel = new Label(message);
-        messageLabel.setStyle(
-                "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
+        messageLabel.setStyle(boxStyle + "-fx-font-family: 'Nunito ExtraBold';");
 
         messageLabel.setWrapText(true);
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
         VBox layout = new VBox(10);
-        layout.setAlignment(Pos.CENTER);
+        layout.setAlignment(Pos.TOP_LEFT);
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: linear-gradient(to bottom, #b0e57c, #8ccf5c);"); // Same green as the table panel
         layout.getChildren().add(messageLabel);
 
         if (nodeSolutions != null) {
             Label alternativeLabel = new Label("Alternative Solutions");
-            alternativeLabel.setStyle("-fx-text-fill: #FFF5E0; " + "-fx-padding: 2; " + "-fx-font-size: 16px;");
+            alternativeLabel.setStyle("-fx-text-fill: #465e43; " + "-fx-font-family: 'Fredoka SemiBold'; " + "-fx-padding: 8 0 0 2; " + "-fx-font-size: 16px;");
             alternativeLabel.setAlignment(Pos.CENTER);
 
             layout.getChildren().add(alternativeLabel);
 
+            int alternativesCount = 0;
             for (int i = 0; i < nodeSolutions.length; i++)
-                if (nodeSolutions[i] != null) {
-                    Label alternative = new Label("Alternative Solution : " + nodeSolutions[i].getOptimalPath()
-                            + " With Cost " + nodeSolutions[i].getOptimalCost());
-                    alternative.setStyle(
-                            "-fx-background-color: #FFF5E0; -fx-text-fill: #222831; -fx-font-size: 16px; -fx-padding: 0.5em; -fx-background-radius: 10px; -fx-border-color: #41B06E; -fx-border-width: 2px; -fx-border-radius: 10px;");
-
-                    alternative.setAlignment(Pos.CENTER);
+                // Skip the optimal path itself, it's already shown above
+                if (nodeSolutions[i] != null && !nodeSolutions[i].getOptimalPath().equals(optimalPath)) {
+                    alternativesCount++;
+                    Label alternative = new Label(nodeSolutions[i].getOptimalPath().replace("->", "\u2192")
+                            + "\nCost: " + nodeSolutions[i].getOptimalCost());
+                    alternative.setStyle(boxStyle);
+                    alternative.setWrapText(true);
+                    alternative.setMaxWidth(Double.MAX_VALUE);
 
                     layout.getChildren().add(alternative);
 
                 }
+
+            if (alternativesCount == 0)
+                alternativeLabel.setText("No other paths between these two cities");
         }
 
-        Scene scene = new Scene(layout, 400, 300);
+        Scene scene = new Scene(layout, 480, Region.USE_COMPUTED_SIZE);
         detailStage.setScene(scene);
         detailStage.setTitle("Optimal Path Details");
         detailStage.show();  // VERY IMPORTANT
@@ -264,31 +324,46 @@ public class BuildTable {
     }
 
     private Button createStyledButton(String labelText) {
+        return createStyledButton(labelText, false);
+    }
+
+    // Primary buttons are solid green, secondary ones (like Back) are white with a green border
+    private Button createStyledButton(String labelText, boolean secondary) {
         Button button = new Button(labelText);
-        button.setStyle("-fx-background-color: #68af3d; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 15px; -fx-padding: 10px 20px;");
-        button.setPrefWidth(200);
 
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
-        scaleTransition.setToX(1.2);
-        scaleTransition.setToY(1.2);
+        String baseStyle = "-fx-font-family: 'Nunito ExtraBold'; -fx-font-size: 17px; -fx-padding: 11px 24px; " +
+                "-fx-background-radius: 12px; -fx-border-radius: 12px; -fx-border-width: 2px; ";
+        String normalStyle = secondary
+                ? "-fx-background-color: rgba(255,255,255,0.92); -fx-text-fill: #3f7d24; -fx-border-color: #5a9e35;"
+                : "-fx-background-color: #5a9e35; -fx-text-fill: white; -fx-border-color: #5a9e35;";
+        String hoverStyle = secondary
+                ? "-fx-background-color: #eef7e8; -fx-text-fill: #3f7d24; -fx-border-color: #4c8a2c;"
+                : "-fx-background-color: #4c8a2c; -fx-text-fill: white; -fx-border-color: #4c8a2c;";
 
-        ScaleTransition resetScaleTransition = new ScaleTransition(Duration.millis(200), button);
+        button.setStyle(baseStyle + normalStyle);
+        button.setPrefWidth(220);
+        button.setCursor(Cursor.HAND); // Hand cursor on hover
+
+        // Soft shadow under the button
+        DropShadow shadow = new DropShadow(8, 0, 3, Color.rgb(47, 93, 30, 0.3));
+        button.setEffect(shadow);
+
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), button);
+        scaleTransition.setToX(1.04);
+        scaleTransition.setToY(1.04);
+
+        ScaleTransition resetScaleTransition = new ScaleTransition(Duration.millis(150), button);
         resetScaleTransition.setToX(1.0);
         resetScaleTransition.setToY(1.0);
 
-        DropShadow hoverGlow = new DropShadow();
-        hoverGlow.setColor(Color.LIGHTBLUE);
-        hoverGlow.setRadius(15);
-        hoverGlow.setSpread(0.5);
-
         button.setOnMouseEntered(e -> {
             scaleTransition.playFromStart();
-            button.setEffect(hoverGlow);
+            button.setStyle(baseStyle + hoverStyle);
         });
 
         button.setOnMouseExited(e -> {
             resetScaleTransition.playFromStart();
-            button.setEffect(null);
+            button.setStyle(baseStyle + normalStyle);
         });
 
         return button;
@@ -305,7 +380,8 @@ public class BuildTable {
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | IllegalArgumentException e) {
+            // IllegalArgumentException: no audio device available, just skip the sound
             e.printStackTrace();
         }
     }

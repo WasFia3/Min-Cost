@@ -1,0 +1,11 @@
+10
+Baghdad, Basra
+Baghdad, [Karbala,22,70], [Hilla,8,80], [Najaf,12,80]
+Karbala, [Diwaniyah,8,50], [Kut,10,60], [Samawah,15,55]
+Hilla, [Diwaniyah,25,50], [Kut,10,60], [Samawah,9,55]
+Najaf, [Diwaniyah,13,50], [Kut,13,60], [Samawah,20,55]
+Diwaniyah, [Nasiriyah,5,40], [Amarah,12,45]
+Kut, [Nasiriyah,14,40], [Amarah,6,45]
+Samawah, [Nasiriyah,10,40], [Amarah,11,45]
+Nasiriyah, [Basra,18,0]
+Amarah, [Basra,9,0]

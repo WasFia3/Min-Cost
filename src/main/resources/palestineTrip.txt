@@ -1,0 +1,12 @@
+11
+Jenin, Hebron
+Jenin, [Tubas,10,60], [Tulkarm,14,70], [Nablus,12,90]
+Tubas, [Qalqilya,20,55], [Salfit,15,50], [Ramallah,22,120], [Jericho,18,80]
+Tulkarm, [Qalqilya,8,55], [Salfit,14,50], [Ramallah,24,120], [Jericho,30,80]
+Nablus, [Qalqilya,15,55], [Salfit,9,50], [Ramallah,16,120], [Jericho,20,80]
+Qalqilya, [Jerusalem,25,150], [Bethlehem,28,90]
+Salfit, [Jerusalem,18,150], [Bethlehem,22,90]
+Ramallah, [Jerusalem,6,150], [Bethlehem,12,90]
+Jericho, [Jerusalem,14,150], [Bethlehem,16,90]
+Jerusalem, [Hebron,14,0]
+Bethlehem, [Hebron,8,0]
